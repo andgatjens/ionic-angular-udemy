@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Platform } from '@ionic/angular';
+import { Platform, LoadingController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
@@ -17,7 +17,8 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private loadingCtrl: LoadingController
   ) {
     this.initializeApp();
   }
@@ -31,6 +32,15 @@ export class AppComponent {
 
   onLogout() {
     this.authService.logout();
-    this.router.navigateByUrl('/auth');
+    this.loadingCtrl.create({
+      keyboardClose: true,
+      message: 'Logging out...'
+    }).then(loadingEl => {
+      loadingEl.present();
+      setTimeout(() => {
+        loadingEl.dismiss();
+        this.router.navigateByUrl('/auth');
+      }, 1500);
+    });
   }
 }
