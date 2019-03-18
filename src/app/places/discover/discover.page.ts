@@ -13,6 +13,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 })
 export class DiscoverPage implements OnInit, OnDestroy {
   private placesSubscription: Subscription;
+  private chosenFilter: 'all' | 'bookable' = 'all';
   places: Place[];
   relevantPlaces: Place[];
   listedPlaces: Place[];
@@ -26,8 +27,13 @@ export class DiscoverPage implements OnInit, OnDestroy {
   ngOnInit() {
     this.placesService.places.subscribe(places => {
       this.places = places;
-      this.relevantPlaces = this.places;
-      this.listedPlaces = this.relevantPlaces.slice(1);
+      if (this.chosenFilter === 'all') {
+        this.relevantPlaces = this.places;
+        this.listedPlaces = this.relevantPlaces.slice(1);
+      } else {
+        this.relevantPlaces = this.places.filter(place => place.userId !== this.authService.userId);
+        this.listedPlaces = this.relevantPlaces.slice(1);
+      }
     });
   }
 
@@ -40,9 +46,11 @@ export class DiscoverPage implements OnInit, OnDestroy {
     if (event.detail.value === 'all') {
       this.relevantPlaces = this.places;
       this.listedPlaces = this.relevantPlaces.slice(1);
+      this.chosenFilter = 'all';
     } else {
       this.relevantPlaces = this.places.filter(place => place.userId !== this.authService.userId);
       this.listedPlaces = this.relevantPlaces.slice(1);
+      this.chosenFilter = 'bookable';
     }
   }
 

@@ -64,7 +64,7 @@ export class EditOfferPage implements OnInit, OnDestroy {
                 this.router.navigateByUrl('/places/tabs/offers');
               }
           }]
-        }).then(alertElm => alertElm.present());
+        }).then(alertEl => alertEl.present());
       });
     });
   }

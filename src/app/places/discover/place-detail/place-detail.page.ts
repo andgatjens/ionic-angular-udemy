@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NavController, ModalController, ActionSheetController, LoadingController } from '@ionic/angular';
+import { NavController, ModalController, ActionSheetController, LoadingController, AlertController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -18,6 +18,7 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
   private placeSubscription: Subscription;
   place: Place;
   isBookable = false;
+  isLoading = false;
 
   constructor(
     private navCtrl: NavController,
@@ -28,7 +29,8 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
     private bookingsService: BookingsService,
     private loadingCtrl: LoadingController,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {
@@ -37,9 +39,24 @@ export class PlaceDetailPage implements OnInit, OnDestroy {
         this.navCtrl.navigateBack('/places/tabs/discover');
         return;
       }
+
+      this.isLoading = true;
       this.placeSubscription = this.placesService.getPlace(paramMap.get('placeId')).subscribe(place => {
         this.place = place;
         this.isBookable = place.userId !== this.authService.userId;
+        this.isLoading = false;
+      },
+      error => {
+        this.alertCtrl.create({
+          header: 'An error occurred!',
+          message: 'Place could not be fetched. Please try again later.',
+          buttons: [{
+              text: 'Okay',
+              handler: () => {
+                this.router.navigateByUrl('/places/tabs/discover');
+              }
+          }]
+        }).then(alertEl => alertEl.present());
       });
     });
   }
